@@ -6,10 +6,10 @@ need to use a while loop to add the accepted tokens to the stack
 
 class MySyntaxAnalyzer extends SyntaxAnalyzer{
 
-  override var errorFound : Boolean = false
+  var errorFound : Boolean = false
   def isError() = errorFound = true
   def getError : Boolean = errorFound
-  var validTokens: List[String]   //stack for pushing accepted tokens onto the stack after each if statement
+  //var validTokens: List[String]   //stack for pushing accepted tokens onto the stack after each if statement
 
   def Text() = CONSTANTS.plainText //is this right?
 
@@ -18,7 +18,12 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
   override def gittex(): Unit = {
     if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCB)){
       // add to parse tree / stack
+      //do we want a loop to get everything until reach DOCE?
+
+      //validTokens.addString ?? how to add something to list
       Compiler.Scanner.getNextToken()
+
+      //Compiler.Scanner.getNextToken()
     }
     else {
       println("Error")
@@ -36,7 +41,24 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
           | REQTEXT <inner- item>
             | ε
   */
-  override def innerItem(): Unit = ???
+  override def innerItem(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB)) {
+      variableUse()
+      innerItem()
+    }
+    else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD)) {
+      bold()
+      innerItem()
+    }
+    else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LINKB)) {
+      link()
+      innerItem()
+    }
+    else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT)) {
+      Text()
+      innerItem()
+    }
+  }
 
   /*
     <inner-text> ::= <variable-use> <inner-text>
@@ -85,10 +107,81 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
     }
 }
 
+/*
+<link> ::= LINKB REQTEXT BRACKETE ADDRESSB REQTEXT ADDRESSE | ε
+ */
+  override def link(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LINKB))
+      {
+        //add to stack
+        Compiler.Scanner.getNextToken()
 
-  override def link(): Unit = ???
+        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+          {
+            //add to stack
+            Compiler.Scanner.getNextToken()
 
-  override def italics(): Unit = ???
+            if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BRACKETE))
+              {
+                //add to stack
+                Compiler.Scanner.getNextToken()
+
+                if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.ADDRESSB))
+                  {
+                    //add to stack
+                    Compiler.Scanner.getNextToken()
+
+                    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+                      {
+                        //add to stack
+                        Compiler.Scanner.getNextToken()
+
+                        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.ADDRESSE))
+                          {
+                            //add to stack
+                            Compiler.Scanner.getNextToken()
+                          }
+                        else
+                          {
+                            println("Error")
+                            System.exit(1)
+                          }
+                      }
+                    else
+                      {
+                        println("Error")
+                        System.exit(1)
+                      }
+                  }
+                else
+                  {
+                    println("Error")
+                    System.exit(1)
+                  }
+
+              }
+            else
+              {
+                println("Error")
+                System.exit(1)
+              }
+          }
+        else
+          {
+            println("Error")
+            System.exit(1)
+          }
+      }
+    else
+      {
+        println("Error")
+        System.exit(1)
+      }
+
+  }
+
+//I don't think this method is in the guide
+  //  override def italics(): Unit = ???
 
   /*<body> ::= <inner-text> <body>
        | <paragraph> <body>
@@ -109,7 +202,63 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
   override def title(): Unit = ???
 
    // <variable-define> ::= DEFB REQTEXT EQSIGN REQTEXT BRACKETE <variable-define> | ε
-  override def variableDefine(): Unit = ???
+  override def variableDefine(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DEFB))
+      {
+        //add to stack
+        Compiler.Scanner.getNextToken()
+
+        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+          {
+            //add to stack
+            Compiler.Scanner.getNextToken()
+
+            if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.EQSIGN))
+              {
+                //add to stack
+                Compiler.Scanner.getNextToken()
+
+                if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+                  {
+                    //add to stack
+                    Compiler.Scanner.getNextToken()
+
+                    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BRACKETE))
+                      {
+                        //add to stack
+                        Compiler.Scanner.getNextToken()
+                        variableDefine()
+                      }
+                    else
+                      {
+                        println("Error")
+                        System.exit(1)
+                      }
+                  }
+                else
+                  {
+                    println("Error")
+                    System.exit(1)
+                  }
+              }
+            else
+              {
+                println("Error")
+                System.exit(1)
+              }
+          }
+        else
+          {
+            println("Error")
+            System.exit(1)
+          }
+      }
+    else
+      {
+        println("Error")
+        System.exit(1)
+      }
+  }
 
 //<image> ::= IMAGEB REQTEXT BRACKETE ADDRESSB REQTEXT ADDRESSE | ε
     //Not sure if brackets here are correct or not...come back and check!!!

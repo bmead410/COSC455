@@ -1,5 +1,8 @@
 package edu.towson.cis.cosc455.bmead1.project1
 
+import scala.io.Source
+
+//import scala.io.Source
 object Compiler{
 
   var currentToken : String = ""
@@ -9,22 +12,27 @@ object Compiler{
   val Parser = new MySyntaxAnalyzer
   val SemanticAnalyzer = new MySyntaxAnalyzer
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]) = {
     // get input file name from command line argument
-    val filename = args(0)
-    val f = scala.io.Source.fromFile(filename).mkString
-    Scanner.startState(f)
-    checkFile(args)
-    readFile(args(0))
+    val file = "Test2.gtx"
+    //val fileContents = Source.fromFile(filename).getLines.mkString
+    val f = Source.fromFile(file).getLines.mkString
+    println(file)
+    println(f)
+    //for (line <- Source.fromFile(file).getLines()) {
 
-    Scanner.getNextToken()
-
-  }
+      Scanner.startState(f)
+      //checkFile(args)
+      //readFile(args(0))
+      //Parser.gittex()
+      Scanner.getNextToken()
+    }
+ // }
 /*
     Method to read the file from command line?
     Takes in a file, and stores as String
     val are not changeable
- */
+
   def readFile(file : String) = {
     val source = scala.io.Source.fromFile(file)
     fileContents = try source.mkString finally source.close()
@@ -36,11 +44,11 @@ object Compiler{
       System.exit(1)
     }
       //make sure to change back to .gtx
-    else if (! args(0).endsWith(".txt")) {
+    else if (! args(0).endsWith(".gtx")) {
       println("USAGE ERROR: wrong extension!")
       System.exit(1)
     }
   }
-
+*/
   def isError() = ???
 }

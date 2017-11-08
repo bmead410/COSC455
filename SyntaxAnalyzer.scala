@@ -15,7 +15,6 @@ package edu.towson.cis.cosc455.bmead1.project1
 
   trait SyntaxAnalyzer {
 
-    var errorFound : Boolean = false
 
 
     def gittex() : Unit
@@ -32,7 +31,6 @@ package edu.towson.cis.cosc455.bmead1.project1
     def variableDefine() : Unit
     def variableUse() : Unit
     def bold() : Unit
-    def italics() : Unit
     def listItem() : Unit
     def innerItem() : Unit
     def link() : Unit
