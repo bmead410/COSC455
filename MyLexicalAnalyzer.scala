@@ -36,8 +36,9 @@ package edu.towson.cis.cosc455.bmead1.project1
     var lexemeList: List[String] = List()
     var lexems: List[String] = List()
     var newToken: String = ""
-
     val keyword = List('!', '#', '\\','*','+','[', ']', '(', ')', '=')
+    val letterList = List("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+      "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")
 
     /*
     implement a Start State
@@ -46,7 +47,9 @@ package edu.towson.cis.cosc455.bmead1.project1
     */
     def startState(line: String): Unit = {
       //initialize lexemes from Syntax -> not sure about this
-      //initializeAcceptedLex()
+      initializeKeyword()
+      //println(initializeKeyword())
+      //println(lexemeList)
       //Compiler.Parser.gittex()
       //get token from compiler
       sourceLine = line
@@ -67,35 +70,18 @@ package edu.towson.cis.cosc455.bmead1.project1
 
      */
     override def addChar(): Unit = {
-      if(lexLength <= 500){
+
         lexLength += 1
-        lexeme(lexLength) == nextChar
-        lexeme(lexLength) == 0
-      }
-      else {
-        println("Lexical Error: The found lexeme is too long")
-
-        if(!nextChar.isSpaceChar) {
-          while(!nextChar.isSpaceChar){
-            getChar()
-          }
-        }
-
-        lexLength = 0
-        skipWhiteSpace()
-        addChar()
-
-      }
+        lexeme = nextChar :: lexeme
 
     }
 
     override def getChar(): Char = {
       if(position < sourceLine.length())
       {
-        //trying to set the next character equal to the
-        //sourceLine character at the next position
-        nextChar = sourceLine.charAt(position +1)
-        //position +1
+        //
+        nextChar = sourceLine.charAt(position)
+        position +=1
         return nextChar
       }
 
@@ -119,6 +105,7 @@ package edu.towson.cis.cosc455.bmead1.project1
 	  LETTERS, DIGITS, and OTHER SPECIAL CHARACTERS
      */
     override def getNextToken(): Unit = {
+      var pos2 = 1
 
       if(nextChar.isSpaceChar) {
         lexLength = 0
@@ -128,46 +115,59 @@ package edu.towson.cis.cosc455.bmead1.project1
         {
 
             //use methods for keywords
-          processBS()
-         /* processBE()
-          processHeading()
-          processBold()
-          processLI()
-          processLB()
-          processAB()
-          processAE()
-          processIB()
-          processEQ()
-          processText() */
+          if(nextChar == '\\')
+            {
+              processBS()
+            }
+          else if(nextChar == '#'&& sourceLine.charAt(pos2).isSpaceChar) //not sure if this works
+            {
+              processHeading()
+            }
+          else if(nextChar == '*')
+            {
+              processBold()
+            }
+          else if(nextChar == '+')
+            {
+              processLI()
+            }
+          else if(nextChar == '[')
+            {
+              processLB()
+            }
+          else if(nextChar == '(')
+            {
+              processAB()
+            }
+          else if(nextChar == ')')
+            {
+              processAE()
+            }
+          else if(nextChar == '!')
+            {
+              processIB()
+            }
+          else if(nextChar == '=')
+            {
+              processEQ()
+            }
+          /*else if(nextChar == CONSTANTS.REQTEXT)
+            {
+              processText()
+            } */
 
         }
+
+
       else
       {
         //some sort of error
         println("Lexical error: please check for typos, misprints, etc.")
       }
+      lexeme = List()
     }
-
-
-
 
       /*
-      //We want to skip any white space
-      skipWhiteSpace()
-
-      addChar()
-      getChar()
-
-
-      //keep getting the characters for the token
-      //add to stack
-      //get next char
-      while (nextChar.!=('\n') && nextChar.!=(' ')) {
-        addChar()
-        getChar()
-      }
-    }
-
     //Convert now gathered character array tokens into
     // a string
     var newToken: List[String]
@@ -183,163 +183,140 @@ package edu.towson.cis.cosc455.bmead1.project1
     if (lookup(newToken.slice(0, lexLength))) {
       //not sure if this is right yet
       Compiler.currentToken = newToken.slice(0, lexLength).toString()
-
     } */
 
     /*process backslash char there are 8 constants that have BS
     BS means Backslash
+    keep collecting elements until not letter
+    nextChar.toString.equalsIgnoreCase(letterList.mkString) &&
+    keeps reading the \, we want to skip over this character. but
+    still make sure it is a valid token
     */
     def processBS(): Unit ={
-
-      if(nextChar == '\\')
-        {
-          while(nextChar != '\n' && nextChar != ' ')
+          while(!nextChar.isWhitespace && nextChar != '\n' )
             {
-          addChar()
-          getChar()
+              addChar()
+              getChar()
             }
-          newToken = lexeme.toString()
-          if(lookup(newToken.substring(0, lexLength))){
-            Compiler.currentToken == newToken.substring(0, lexLength)
-            println(newToken)
+          newToken = lexeme.reverse.mkString
+          if(lookup(newToken)){
+            Compiler.currentToken = newToken
           }
-        }
+      println("The Lexical Analyzer has processed: " + newToken)
     }
-
-    //process bracket end char
-    def processBE(): Unit = {
-      if(nextChar == ']')
-        {
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
-        }
-    }
-
-    //process heading char
+    /*
+    process heading char
+    heading is # followed by space followed by text
+     */
     def processHeading(): Unit = {
-      if(nextChar == '#')
-        {
-          while(nextChar != '\n' && nextChar != ' ')
+
+          while(nextChar.toString.equalsIgnoreCase(CONSTANTS.REQTEXT))
           {
             addChar()
             getChar()
           }
-        }
+      newToken = lexeme.reverse.mkString
+      println(newToken)
+      //initializeKeyword()
+      if(lookup(newToken)){
+        Compiler.currentToken = newToken
+      }
+      println(newToken)
     }
 
     //process bold char
     def processBold(): Unit = {
-      if(nextChar == '*')
-      {
-        while(nextChar != '\n' && nextChar != ' ')
-        {
-          addChar()
-          getChar()
-        }
-      }
+
+
+
     }
 
     //process list item char
     def processLI(): Unit = {
-      if(nextChar == '+')
-        {
+
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
+
     }
 
     //process linkB char
     def processLB(): Unit = {
-      if(nextChar == '[')
-        {
+
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
+
     }
 
     //process addressBegin char
     def processAB(): Unit = {
-      if(nextChar == '(')
-        {
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
     }
 
     //process addressEnd char
     def processAE(): Unit = {
-      if(nextChar == ')')
-        {
+
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
+
     }
 
     //process imageBegin char
     def processIB(): Unit = {
-      if(nextChar == '!')
-        {
+
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
+
     }
 
     //process equal char
     def processEQ(): Unit = {
-      if(nextChar == '=')
-        {
+
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
+
     }
 
     //process text
     def processText(): Unit = {
-      if(nextChar == CONSTANTS.REQTEXT)
-        {
           while(nextChar != '\n' && nextChar != ' ')
           {
             addChar()
             getChar()
           }
-        }
+    }
+/*
+
+ */
+    def initializeKeyword() = {
+      lexemeList = List("\\BEGIN", "\\END","\\TITLE[", "]","#","\\PARAB","\\PARAE","*","+",
+        "\\", "[","(", ")","![", "\\DEF[", "=", "\\USE[")
     }
 
-
-//why do I keep getting this error that lookup overrides nothing?
+//debug
      override def lookup(candidateToken: String): Boolean = {
-        if(!lexemeList.contains(candidateToken)){
-          if(!CONSTANTS.plainText.contains(candidateToken)) {
-
-            Compiler.Parser.isError()
-            println("Lexical Error: " + candidateToken + " not accepted plaintext.")
-            return false
-          }
-          else{
+        if(!lexemeList.contains(candidateToken))
+        {
             println("Lexical Error: " + candidateToken + " not an appropriate keyword")
             return false
-          }
         }
       return true
     }
@@ -347,11 +324,7 @@ package edu.towson.cis.cosc455.bmead1.project1
     /*
     add legal keywords to the language
      */
-    def initializeKeyword(candidateToken: List[String]) = {
-        lexemeList = List(CONSTANTS.DOCB, CONSTANTS.DOCE, CONSTANTS.TITLEB, CONSTANTS.BRACKETE, CONSTANTS.HEADING,
-         CONSTANTS.PARAB, CONSTANTS.PARAE,CONSTANTS.BOLD, CONSTANTS.LISTITEM, CONSTANTS.NEWLINE, CONSTANTS.LINKB,
-          CONSTANTS.ADDRESSB, CONSTANTS.ADDRESSE, CONSTANTS.IMAGEB, CONSTANTS.DEFB, CONSTANTS.EQSIGN, CONSTANTS.USEB)
-    }
+
 
 
     def skipWhiteSpace() : Unit = {
@@ -361,10 +334,11 @@ package edu.towson.cis.cosc455.bmead1.project1
     }
 
     def initializeAcceptedLex() = {
-      /*lexems = List(CONSTANTS.DOCB, CONSTANTS.DOCE, CONSTANTS.TITLEB, CONSTANTS.BRACKETE, CONSTANTS.HEADING,
+      lexems = List(CONSTANTS.DOCB, CONSTANTS.DOCE, CONSTANTS.TITLEB, CONSTANTS.BRACKETE, CONSTANTS.HEADING,
         CONSTANTS.PARAB, CONSTANTS.PARAE,CONSTANTS.BOLD, CONSTANTS.LISTITEM, CONSTANTS.NEWLINE, CONSTANTS.LINKB,
-        CONSTANTS.ADDRESSB, CONSTANTS.ADDRESSE, CONSTANTS.IMAGEB, CONSTANTS.DEFB, CONSTANTS.EQSIGN, CONSTANTS.USEB) */
-    lexems = List("\\BEGIN")
+        CONSTANTS.ADDRESSB, CONSTANTS.ADDRESSE, CONSTANTS.IMAGEB, CONSTANTS.DEFB, CONSTANTS.EQSIGN, CONSTANTS.USEB)
+    //lexems = List("\\BEGIN")
     }
 
+   // def isALetter(c: Char) = c.isLetter && c <= 'z'
   }

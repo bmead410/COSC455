@@ -14,28 +14,35 @@ object Compiler{
 
   def main(args: Array[String]) = {
     // get input file name from command line argument
-    val file = "Test2.gtx"
-    //val fileContents = Source.fromFile(filename).getLines.mkString
-    val f = Source.fromFile(file).getLines.mkString
+    val file = args(0)
+    val fileContents = Source.fromFile(file).getLines.mkString
+    //val f = Source.fromFile(file).getLines.mkString
     println(file)
-    println(f)
+    //println(fileContents)
     //for (line <- Source.fromFile(file).getLines()) {
 
-      Scanner.startState(f)
-      //checkFile(args)
-      //readFile(args(0))
-      //Parser.gittex()
+      Scanner.startState(fileContents)
+      println("The current token is: " + currentToken)
+      checkFile(args)
+      readFile(args(0))
+     // Parser.gittex()
       Scanner.getNextToken()
+   /* while(currentToken!=Nil)
+      {
+        Scanner.getNextToken()
+        println(currentToken)
+      } */
     }
  // }
 /*
     Method to read the file from command line?
     Takes in a file, and stores as String
-    val are not changeable
+    val are not changeable */
 
   def readFile(file : String) = {
     val source = scala.io.Source.fromFile(file)
     fileContents = try source.mkString finally source.close()
+    println(fileContents)
   }
 
   def checkFile(args : Array[String]) = {
@@ -49,6 +56,6 @@ object Compiler{
       System.exit(1)
     }
   }
-*/
+
   def isError() = ???
 }
