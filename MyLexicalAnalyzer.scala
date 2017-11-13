@@ -10,11 +10,6 @@ package edu.towson.cis.cosc455.bmead1.project1
   var (s) are mutable or changeable
   val (s) are immutable or not changeable
 
-  QUESTIONS :
-
-  1.
-
-  2.
    */
   class MyLexicalAnalyzer extends LexicalAnalyzer {
 
@@ -36,6 +31,7 @@ package edu.towson.cis.cosc455.bmead1.project1
     var lexemeList: List[String] = List()
     var lexems: List[String] = List()
     var newToken: String = ""
+   // val symbolList = List('!', '#', '*','+','[', ']', '(', ')', '=')
     val keyword = List('!', '#', '\\','*','+','[', ']', '(', ')', '=')
     val letterList = List("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
       "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")
@@ -48,26 +44,20 @@ package edu.towson.cis.cosc455.bmead1.project1
     def startState(line: String): Unit = {
       //initialize lexemes from Syntax -> not sure about this
       initializeKeyword()
-      //println(initializeKeyword())
-      //println(lexemeList)
       //Compiler.Parser.gittex()
       //get token from compiler
       sourceLine = line
       position = 0
       getChar()
-      getNextToken()
+      //getNextToken()
     } //end startState
 
-
-    /*
    /*
 	This method adds the current character
 	the the token after checking to make
 	sure that the length of the token
 	isn't too long, a lexical error in this
 	case.
-	*/
-
      */
     override def addChar(): Unit = {
 
@@ -76,6 +66,7 @@ package edu.towson.cis.cosc455.bmead1.project1
 
     }
 
+    //return current character
     override def getChar(): Char = {
       if(position < sourceLine.length())
       {
@@ -105,199 +96,94 @@ package edu.towson.cis.cosc455.bmead1.project1
 	  LETTERS, DIGITS, and OTHER SPECIAL CHARACTERS
      */
     override def getNextToken(): Unit = {
-      var pos2 = 1
-
-      if(nextChar.isSpaceChar) {
-        lexLength = 0
+      lexLength = 0
+      if(nextChar.isWhitespace) {
         skipWhiteSpace()
       }
-      else if(keyword.contains(nextChar))
-        {
-
-            //use methods for keywords
-          if(nextChar == '\\')
-            {
-              processBS()
-            }
-          else if(nextChar == '#'&& sourceLine.charAt(pos2).isSpaceChar) //not sure if this works
-            {
-              processHeading()
-            }
-          else if(nextChar == '*')
-            {
-              processBold()
-            }
-          else if(nextChar == '+')
-            {
-              processLI()
-            }
-          else if(nextChar == '[')
-            {
-              processLB()
-            }
-          else if(nextChar == '(')
-            {
-              processAB()
-            }
-          else if(nextChar == ')')
-            {
-              processAE()
-            }
-          else if(nextChar == '!')
-            {
-              processIB()
-            }
-          else if(nextChar == '=')
-            {
-              processEQ()
-            }
-          /*else if(nextChar == CONSTANTS.REQTEXT)
-            {
-              processText()
-            } */
-
+      if(keyword.contains(nextChar)) {
+        /*
+            use methods for keywords
+            Backslash method is common in the
+            defined constants
+             */
+        if (nextChar == '\\') {
+          processBS()
         }
+        else if (nextChar == '!') {
+          processImage()
+        }
+        else {
+          processSymbols()
+        }
+        newToken = lexeme.reverse.mkString
+        if(lookup(newToken)){
+          Compiler.currentToken = newToken
+          //println(newToken)
+        }
+      }
 
-
+      else if (!nextChar.isWhitespace)
+        {
+          processText()
+          Compiler.currentToken = lexeme.reverse.mkString
+        }
       else
       {
         //some sort of error
         println("Lexical error: please check for typos, misprints, etc.")
+        System.exit(1)
       }
       lexeme = List()
     }
 
-      /*
-    //Convert now gathered character array tokens into
-    // a string
-    var newToken: List[String]
-    newToken :: lexeme
-
-    /*
-    Used slice for "substring".
-    may or may not work?
-    also is .eq used correctly?
-    I set the current token equal to the element in the list
-    newToken
-     */
-    if (lookup(newToken.slice(0, lexLength))) {
-      //not sure if this is right yet
-      Compiler.currentToken = newToken.slice(0, lexLength).toString()
-    } */
-
     /*process backslash char there are 8 constants that have BS
     BS means Backslash
-    keep collecting elements until not letter
-    nextChar.toString.equalsIgnoreCase(letterList.mkString) &&
-    keeps reading the \, we want to skip over this character. but
-    still make sure it is a valid token
+    keep collecting elements until space char
+    Still not printing first 2 tokens
+
     */
     def processBS(): Unit ={
-          while(!nextChar.isWhitespace && nextChar != '\n' )
+     // addChar()
+     // getChar()
+          while(!nextChar.isWhitespace && nextChar != '[')
             {
               addChar()
               getChar()
             }
-          newToken = lexeme.reverse.mkString
-          if(lookup(newToken)){
-            Compiler.currentToken = newToken
-          }
-      println("The Lexical Analyzer has processed: " + newToken)
+          if(nextChar == '[')
+            {
+              addChar()
+              getChar()
+            }
+
     }
     /*
     process heading char
-    heading is # followed by space followed by text
+    symbols are processed until reached a space char or keyword
      */
-    def processHeading(): Unit = {
+    def processSymbols() : Unit = {
+      addChar()
+      getChar()
+    }
 
-          while(nextChar.toString.equalsIgnoreCase(CONSTANTS.REQTEXT))
-          {
-            addChar()
-            getChar()
-          }
-      newToken = lexeme.reverse.mkString
-      println(newToken)
-      //initializeKeyword()
-      if(lookup(newToken)){
-        Compiler.currentToken = newToken
+    //This works to my knowledge
+    def processImage() : Unit = {
+      if(nextChar == '!') {
+        addChar()
+        getChar()
       }
-      println(newToken)
-    }
-
-    //process bold char
-    def processBold(): Unit = {
-
-
-
-    }
-
-    //process list item char
-    def processLI(): Unit = {
-
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
-
-    }
-
-    //process linkB char
-    def processLB(): Unit = {
-
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
-
-    }
-
-    //process addressBegin char
-    def processAB(): Unit = {
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
-    }
-
-    //process addressEnd char
-    def processAE(): Unit = {
-
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
-
-    }
-
-    //process imageBegin char
-    def processIB(): Unit = {
-
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
-
-    }
-
-    //process equal char
-    def processEQ(): Unit = {
-
-          while(nextChar != '\n' && nextChar != ' ')
-          {
-            addChar()
-            getChar()
-          }
+        if (nextChar == '[') {
+          addChar()
+          getChar()
+        }
 
     }
 
     //process text
+    //This works to my knowledge
     def processText(): Unit = {
-          while(nextChar != '\n' && nextChar != ' ')
+      //iterates until not a kw, or special space char
+          while(!keyword.contains(nextChar) && nextChar != '\n' && nextChar!= '\t')
           {
             addChar()
             getChar()
@@ -308,37 +194,30 @@ package edu.towson.cis.cosc455.bmead1.project1
  */
     def initializeKeyword() = {
       lexemeList = List("\\BEGIN", "\\END","\\TITLE[", "]","#","\\PARAB","\\PARAE","*","+",
-        "\\", "[","(", ")","![", "\\DEF[", "=", "\\USE[")
+        "\\", "[","(", ")","!", "\\DEF[", "=", "\\USE[")
     }
 
-//debug
+//added equalsIgnoreCase, hoping it works.
      override def lookup(candidateToken: String): Boolean = {
-        if(!lexemeList.contains(candidateToken))
+        if(!lexemeList.contains(candidateToken) && Compiler.currentToken.equalsIgnoreCase(candidateToken))
         {
-            println("Lexical Error: " + candidateToken + " not an appropriate keyword")
+            println("Lexical Error: " + candidateToken + " not an allowed keyword")
             return false
         }
       return true
     }
 
-    /*
-    add legal keywords to the language
-     */
-
-
-
-    def skipWhiteSpace() : Unit = {
-      while (nextChar.isSpaceChar){
+   def skipWhiteSpace() : Unit = {
+      while (nextChar.isWhitespace){
         getChar()
       }
     }
 
-    def initializeAcceptedLex() = {
+  /*  def initializeAcceptedLex() = {
       lexems = List(CONSTANTS.DOCB, CONSTANTS.DOCE, CONSTANTS.TITLEB, CONSTANTS.BRACKETE, CONSTANTS.HEADING,
         CONSTANTS.PARAB, CONSTANTS.PARAE,CONSTANTS.BOLD, CONSTANTS.LISTITEM, CONSTANTS.NEWLINE, CONSTANTS.LINKB,
         CONSTANTS.ADDRESSB, CONSTANTS.ADDRESSE, CONSTANTS.IMAGEB, CONSTANTS.DEFB, CONSTANTS.EQSIGN, CONSTANTS.USEB)
     //lexems = List("\\BEGIN")
-    }
+    } */
 
-   // def isALetter(c: Char) = c.isLetter && c <= 'z'
   }

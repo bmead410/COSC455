@@ -17,21 +17,21 @@ object Compiler{
     val file = args(0)
     val fileContents = Source.fromFile(file).getLines.mkString
     //val f = Source.fromFile(file).getLines.mkString
-    println(file)
+  //  println(file)
     //println(fileContents)
     //for (line <- Source.fromFile(file).getLines()) {
 
-      Scanner.startState(fileContents)
-      println("The current token is: " + currentToken)
+
       checkFile(args)
       readFile(args(0))
+    Scanner.startState(fileContents)
      // Parser.gittex()
-      Scanner.getNextToken()
-   /* while(currentToken!=Nil)
+      //Scanner.getNextToken()
+    while(currentToken!=Nil)
       {
         Scanner.getNextToken()
         println(currentToken)
-      } */
+      }
     }
  // }
 /*
