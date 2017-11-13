@@ -22,23 +22,26 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
   --In progress
    */
   override def gittex(): Unit = {
-    if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCB)) {
+    if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCB)) { //this is my error boolean is false instead of true
       // add to parse tree / stack and call methods
       validTokens.push(Compiler.currentToken)
       variableDefine()
       title()
       body()
-
-      //check to see if print is correct
-      println(validTokens)
+      //println(validTokens)
 
       //get following token
-      //Do I get next toke in both places? think this through
       Compiler.Scanner.getNextToken()
 
       if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCE)) {
         validTokens.push(Compiler.currentToken)
         Compiler.Scanner.getNextToken()
+        println(validTokens)
+      }
+      else
+      {
+        println("Syntax Error: " + Compiler.currentToken)
+        System.exit(1)
       }
     }
     else {
@@ -240,7 +243,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
 //I don't think this method is in the guide
   //  override def italics(): Unit = ???
   /*
-  <variable-use> <inner-text>
+ <inner-text> ::= <variable-use> <inner-text>
 | <heading> <inner-text>
 | <bold> <inner-text>
 | <listitem> <inner-text>
@@ -266,70 +269,193 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
       Compiler.Scanner.getNextToken() //get next token
     }
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.PARAB))
+      {
+        validTokens.push(Compiler.currentToken)
+        paragraph()
+        body()
+        Compiler.Scanner.getNextToken() //get next token
+      }
+    else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.NEWLINE))
+      {
+        newline()
+        body()
+        Compiler.Scanner.getNextToken() //get next token
+      }
+    else
+      {
+        println("Syntax Error: " + Compiler.currentToken)
+        System.exit(1)
+      }
   }
 
-      override def bold(): Unit = ???
-
-  override def newline(): Unit = ???
-
-    //<title> ::= TITLEB REQTEXT BRACKETE
-  override def title(): Unit = ???
-
-   // <variable-define> ::= DEFB REQTEXT EQSIGN REQTEXT BRACKETE <variable-define> | ε
-  override def variableDefine(): Unit = {
-    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DEFB))
-      {
-        //add to stack
-        Compiler.Scanner.getNextToken()
-
-        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+      /*
+      <bold> ::= BOLD TEXT BOLD | ε
+      do I push to stack at each if statement?
+       */
+      override def bold(): Unit = {
+        if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD))
           {
-            //add to stack
+            //push to stack
+            validTokens.push(Compiler.currentToken)
             Compiler.Scanner.getNextToken()
 
-            if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.EQSIGN))
+            if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TEXT))
+            {
+              //push to stack
+              validTokens.push(Compiler.currentToken)
+              Compiler.Scanner.getNextToken()
+
+              if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD))
               {
-                //add to stack
+                //push to stack
+                validTokens.push(Compiler.currentToken)
                 Compiler.Scanner.getNextToken()
-
-                if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
-                  {
-                    //add to stack
-                    Compiler.Scanner.getNextToken()
-
-                    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BRACKETE))
-                      {
-                        //add to stack
-                        Compiler.Scanner.getNextToken()
-                        variableDefine()
-                      }
-                    else
-                      {
-                        println("Error")
-                        System.exit(1)
-                      }
-                  }
-                else
-                  {
-                    println("Error")
-                    System.exit(1)
-                  }
               }
+              else {
+                println("Syntax Error: " + Compiler.currentToken)
+                System.exit(1)
+              }
+            }
             else
               {
-                println("Error")
+                println("Syntax Error: " + Compiler.currentToken)
                 System.exit(1)
               }
           }
         else
           {
-            println("Error")
+            println("Syntax Error: " + Compiler.currentToken)
+            System.exit(1)
+          }
+      }
+
+  /*
+  <newline> ::= NEWLINE | ε
+   */
+  override def newline(): Unit =
+  {
+    if(Compiler.currentToken.equals(CONSTANTS.NEWLINE))
+      {
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
+        Compiler.Scanner.getNextToken()
+      }
+    else
+      {
+       println("Syntax Error: " + Compiler.currentToken)
+       System.exit(1)
+      }
+  }
+
+    //<title> ::= TITLEB REQTEXT BRACKETE
+  override def title(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TITLEB))
+      {
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
+        Compiler.Scanner.getNextToken()
+
+        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+          {
+            //push to stack
+            validTokens.push(Compiler.currentToken)
+            //get next token
+            Compiler.Scanner.getNextToken()
+
+            if(Compiler.currentToken.equals(CONSTANTS.BRACKETE))
+              {
+                //push to stack
+                validTokens.push(Compiler.currentToken)
+                //get next token
+                Compiler.Scanner.getNextToken()
+              }
+            else
+              {
+                println("Syntax Error: " + Compiler.currentToken)
+                System.exit(1)
+              }
+          }
+        else
+          {
+            println("Syntax Error: " + Compiler.currentToken)
             System.exit(1)
           }
       }
     else
       {
-        println("Error")
+        println("Syntax Error: " + Compiler.currentToken)
+        System.exit(1)
+      }
+  }
+
+   // <variable-define> ::= DEFB REQTEXT EQSIGN REQTEXT BRACKETE <variable-define> | ε
+  //add in the variable-define
+  override def variableDefine(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DEFB))
+      {
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
+        Compiler.Scanner.getNextToken()
+
+        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+          {
+            //push to stack
+            validTokens.push(Compiler.currentToken)
+            //get next token
+            Compiler.Scanner.getNextToken()
+
+            if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.EQSIGN))
+              {
+                //push to stack
+                validTokens.push(Compiler.currentToken)
+                //get next token
+                Compiler.Scanner.getNextToken()
+
+                if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+                  {
+                    //push to stack
+                    validTokens.push(Compiler.currentToken)
+                    //get next token
+                    Compiler.Scanner.getNextToken()
+
+                    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BRACKETE))
+                      {
+                        //push to stack
+                        validTokens.push(Compiler.currentToken)
+                        //get next token
+                        Compiler.Scanner.getNextToken()
+                        variableDefine()
+                      }
+                    else
+                      {
+                        println("Syntax Error: " + Compiler.currentToken)
+                        System.exit(1)
+                      }
+                  }
+                else
+                  {
+                    println("Syntax Error: " + Compiler.currentToken)
+                    System.exit(1)
+                  }
+              }
+            else
+              {
+                println("Syntax Error: " + Compiler.currentToken)
+                System.exit(1)
+              }
+          }
+        else
+          {
+            println("Syntax Error: " + Compiler.currentToken)
+            System.exit(1)
+          }
+      }
+    else
+      {
+        println("Syntax Error: " + Compiler.currentToken)
         System.exit(1)
       }
   }
@@ -340,107 +466,194 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
     {
       if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.IMAGEB))
         {
-          //add to stack
+          //push to stack
+          validTokens.push(Compiler.currentToken)
+          //get next token
           Compiler.Scanner.getNextToken()
 
           if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
             {
-              //add to stack
+              //push to stack
+              validTokens.push(Compiler.currentToken)
+              //get next token
               Compiler.Scanner.getNextToken()
 
               if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BRACKETE))
                 {
-                  //add to stack
+                  //push to stack
+                  validTokens.push(Compiler.currentToken)
+                  //get next token
                   Compiler.Scanner.getNextToken()
 
                   if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.ADDRESSB))
                     {
-                      //add to stack
+                      //push to stack
+                      validTokens.push(Compiler.currentToken)
+                      //get next token
                       Compiler.Scanner.getNextToken()
 
                       if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
                        {
-                         //add to stack
+                         //push to stack
+                         validTokens.push(Compiler.currentToken)
+                         //get next token
                          Compiler.Scanner.getNextToken()
 
                          if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.ADDRESSE))
                            {
-                             //add to stack
+                             //push to stack
+                             validTokens.push(Compiler.currentToken)
+                             //get next token
                              Compiler.Scanner.getNextToken()
                            }
                          else {
-                           println("Error")
+                           println("Syntax Error: " + Compiler.currentToken)
                            System.exit(1)
                          }
                        }
                       else {
-                        println("Error")
+                        println("Syntax Error: " + Compiler.currentToken)
                         System.exit(1)
                       }
 
                     }
                   else {
-                    println("Error")
+                    println("Syntax Error: " + Compiler.currentToken)
                     System.exit(1)
                   }
                 }
               else {
-                println("Error")
+                println("Syntax Error: " + Compiler.currentToken)
                 System.exit(1)
               }
             }
           else {
-            println("Error")
+            println("Syntax Error: " + Compiler.currentToken)
             System.exit(1)
           }
         }
       else {
-        println("Error")
+        println("Syntax Error: " + Compiler.currentToken)
         System.exit(1)
       }
     }
 
 
 //not sure. Come back and check!!!!
+  /*
+  <variable-use> ::= USEB REQTEXT BRACKETE | ε
+   */
   override def variableUse(): Unit = {
     if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB))
     {
-      //add to stack or array list
+      //push to stack
+      validTokens.push(Compiler.currentToken)
+      //get next token
       Compiler.Scanner.getNextToken()
 
       if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
       {
-        //add to stack
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
         Compiler.Scanner.getNextToken()
+
         if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BRACKETE))
         {
-          //add to stack
+          //push to stack
+          validTokens.push(Compiler.currentToken)
+          //get next token
           Compiler.Scanner.getNextToken()
         }
         else
         {
-          println("Error")
+          println("Syntax Error: " + Compiler.currentToken)
           System.exit(1)
         }
       }
         else
         {
           //required text
-          println("Error")
+          println("Syntax Error: " + Compiler.currentToken)
           System.exit(1)
-
         }
     }
     else
     {
-      println("Error")
+      println("Syntax Error: " + Compiler.currentToken)
       System.exit(1)
     }
-
   }
 
     // <heading> ::= HEADING REQTEXT | ε
-  override def heading(): Unit = ???
+  override def heading(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.HEADING))
+      {
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
+        Compiler.Scanner.getNextToken()
 
-  override def listItem(): Unit = ???
+        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+          {
+            //push to stack
+            validTokens.push(Compiler.currentToken)
+            //get next token
+            Compiler.Scanner.getNextToken()
+          }
+        else
+        {
+          println("Syntax Error: " + Compiler.currentToken)
+          System.exit(1)
+        }
+      }
+    else
+    {
+      println("Syntax Error: " + Compiler.currentToken)
+      System.exit(1)
+    }
+  }
+
+  /*
+  <listitem> ::= LISTITEMB <inner-item> <list-item> | ε
+
+  <inner-item> ::= <variable-use> <inner- item>
+| <bold> <inner- item>
+| <link> <inner- item>
+| REQTEXT <inner- item>
+| ε
+
+<listitem> ::= LISTITEM <inner-item> <list-item> | ε
+
+this is using recursion?
+recalls listitem...how to implement this?
+   */
+  override def listItem(): Unit = {
+    if (Compiler.currentToken.equals(CONSTANTS.LISTITEM)) {
+
+      //push to stack
+      validTokens.push(Compiler.currentToken)
+      //get next token
+      Compiler.Scanner.getNextToken()
+
+      if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB) || Compiler.currentToken.equals(CONSTANTS.BOLD) ||
+        Compiler.currentToken.equals(CONSTANTS.LINKB) || Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT)) {
+
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
+        Compiler.Scanner.getNextToken()
+      }
+      else
+      {
+        println("Syntax Error: " + Compiler.currentToken)
+        System.exit(1)
+      }
+    }
+    else
+    {
+      println("Syntax Error: " + Compiler.currentToken)
+      System.exit(1)
+    }
+  }
 }

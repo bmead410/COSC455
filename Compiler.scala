@@ -16,21 +16,16 @@ object Compiler{
     // get input file name from command line argument
     val file = args(0)
     val fileContents = Source.fromFile(file).getLines.mkString
-    //val f = Source.fromFile(file).getLines.mkString
-  //  println(file)
-    //println(fileContents)
-    //for (line <- Source.fromFile(file).getLines()) {
-
-
       checkFile(args)
       readFile(args(0))
     Scanner.startState(fileContents)
-     // Parser.gittex()
+    Parser.gittex()
       //Scanner.getNextToken()
     while(currentToken!=Nil)
       {
         Scanner.getNextToken()
         println(currentToken)
+        println(Parser.validTokens)
       }
     }
  // }
