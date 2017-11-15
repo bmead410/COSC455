@@ -22,7 +22,6 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
     if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCB)) { //this is my error boolean is false instead of true
       // add to parse tree / stack and call methods
       validTokens.push(Compiler.currentToken)
-      //println(validTokens)
       //get following token
       Compiler.Scanner.getNextToken()
       if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DEFB)) {
@@ -76,11 +75,11 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
           println(validTokens)
           Compiler.Scanner.getNextToken()
         }
-        /*else
+        else
         {
           println("Syntax Error: " + Compiler.currentToken + " expecting ending bracket ]")
           System.exit(1)
-        } */
+        }
       }
       else
       {
@@ -323,7 +322,6 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
       Compiler.Scanner.getNextToken() //get next token
       innerText() //call inner-text
       body() //call body
-
     }
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.PARAB))
       {
