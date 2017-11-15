@@ -30,8 +30,6 @@ object CONSTANTS {
   val DEFB: String = "\\DEF["
   val EQSIGN: String = "="
   val USEB: String = "\\USE["
-  val REQTEXT: String = plainText.mkString("")
-  val TEXT: String = plainText.mkString("")
 
   val letters: List[String] = List("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
     "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")

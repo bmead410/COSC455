@@ -14,9 +14,6 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
   //stack for pushing accepted tokens onto the stack after each if statement
   var validTokens = Stack[String]()
 
-  def Text() = CONSTANTS.plainText //is this right?
-
-
   /*
   <gittex> ::= DOCB <variable-define> <title> <body> DOCE
   --In progress
@@ -25,18 +22,65 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
     if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCB)) { //this is my error boolean is false instead of true
       // add to parse tree / stack and call methods
       validTokens.push(Compiler.currentToken)
-      variableDefine()
-      title()
-      body()
       //println(validTokens)
-
       //get following token
       Compiler.Scanner.getNextToken()
+      if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DEFB)) {
+        variableDefine() //if here
+        Compiler.Scanner.getNextToken()
+      }
+      else if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TITLEB)) {
+        title()
+        Compiler.Scanner.getNextToken()
+      }
+      else {
+        body()
+        Compiler.Scanner.getNextToken()
+      }
 
       if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.DOCE)) {
         validTokens.push(Compiler.currentToken)
         Compiler.Scanner.getNextToken()
         println(validTokens)
+      }
+    }
+
+    else {
+      println("Syntax Error at: " + Compiler.currentToken)
+      System.exit(1)
+    }
+  }
+  //<title> ::= TITLEB REQTEXT BRACKETE
+  override def title(): Unit = {
+    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TITLEB))
+    {
+      //push to stack
+      validTokens.push(Compiler.currentToken)
+      //get next token
+      println(validTokens)
+      Compiler.Scanner.getNextToken()
+
+      if(Compiler.isText)
+      {
+        //push to stack
+        validTokens.push(Compiler.currentToken)
+        //get next token
+        println(validTokens)
+        Compiler.Scanner.getNextToken()
+
+        if(Compiler.currentToken.equals(CONSTANTS.BRACKETE))
+        {
+          //push to stack
+          validTokens.push(Compiler.currentToken)
+          //get next token
+          println(validTokens)
+          Compiler.Scanner.getNextToken()
+        }
+        /*else
+        {
+          println("Syntax Error: " + Compiler.currentToken + " expecting ending bracket ]")
+          System.exit(1)
+        } */
       }
       else
       {
@@ -44,8 +88,9 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
         System.exit(1)
       }
     }
-    else {
-      println("Syntax Error at: " + Compiler.currentToken)
+    else
+    {
+      println("Syntax Error: " + Compiler.currentToken)
       System.exit(1)
     }
   }
@@ -55,6 +100,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
     if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.PARAB))
       {
         validTokens.push(Compiler.currentToken)
+        Compiler.Scanner.getNextToken()
         variableDefine()
         innerText()
         if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.PARAE))
@@ -86,24 +132,28 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
   override def innerItem(): Unit = {
     if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       variableUse()
       innerItem()
     }
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       bold()
       innerItem()
     }
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LINKB)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       link()
       innerItem()
     }
       //not sure of this
-    else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT)) {
+    else if(Compiler.isText) {
       validTokens.push(Compiler.currentToken)
-      Text() //unsure here
+      Compiler.Scanner.getNextToken() //make sure get next token
       innerItem()
+      Compiler.isText = true
     }
   }
 
@@ -120,43 +170,49 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
   override def innerText(): Unit = {
     if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       variableUse()
       innerText()
     }
 
     else if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.HEADING)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       heading()
       innerText()
     }
 
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       bold()
       innerText()
     }
 
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LISTITEM)) {
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       listItem()
       innerText()
     }
 
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.IMAGEB)){
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       image()
       innerText()
     }
 
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LINKB)){
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken()
       link()
       innerText()
     }
 
-    else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TEXT)){ //not sure about this
+    else if(Compiler.isText){ //not sure about this
       validTokens.push(Compiler.currentToken)
-      Text()
+      Compiler.Scanner.getNextToken()
       innerText()
     }
 }
@@ -171,7 +227,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
         validTokens.push(Compiler.currentToken)
         Compiler.Scanner.getNextToken()
 
-        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+        if(Compiler.isText) //changed
           {
             //add to stack
             validTokens.push(Compiler.currentToken)
@@ -189,7 +245,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
                     validTokens.push(Compiler.currentToken)
                     Compiler.Scanner.getNextToken()
 
-                    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+                    if(Compiler.isText) //changed
                       {
                         //add to stack
                         validTokens.push(Compiler.currentToken)
@@ -257,29 +313,30 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
        | <newline> <body>
        | ε
     */
-  override def body(): Unit = {
+  override def body(): Unit = { //changed
     if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB) || Compiler.currentToken.equalsIgnoreCase(CONSTANTS.HEADING) ||
     Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD) || Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LISTITEM) ||
     Compiler.currentToken.equalsIgnoreCase(CONSTANTS.IMAGEB) || Compiler.currentToken.equalsIgnoreCase(CONSTANTS.LINKB) ||
-    Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TEXT)) {
+    Compiler.isText) {
       //add to stack
       validTokens.push(Compiler.currentToken)
+      Compiler.Scanner.getNextToken() //get next token
       innerText() //call inner-text
       body() //call body
-      Compiler.Scanner.getNextToken() //get next token
+
     }
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.PARAB))
       {
         validTokens.push(Compiler.currentToken)
+        Compiler.Scanner.getNextToken() //get next token
         paragraph()
         body()
-        Compiler.Scanner.getNextToken() //get next token
       }
     else if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.NEWLINE))
       {
+        Compiler.Scanner.getNextToken() //get next token
         newline()
         body()
-        Compiler.Scanner.getNextToken() //get next token
       }
     else
       {
@@ -299,14 +356,14 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
             validTokens.push(Compiler.currentToken)
             Compiler.Scanner.getNextToken()
 
-            if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TEXT))
+            if(Compiler.isText) //changed
             {
               //push to stack
               validTokens.push(Compiler.currentToken)
               Compiler.Scanner.getNextToken()
 
               if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.BOLD))
-              {
+                {
                 //push to stack
                 validTokens.push(Compiler.currentToken)
                 Compiler.Scanner.getNextToken()
@@ -348,47 +405,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
       }
   }
 
-    //<title> ::= TITLEB REQTEXT BRACKETE
-  override def title(): Unit = {
-    if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.TITLEB))
-      {
-        //push to stack
-        validTokens.push(Compiler.currentToken)
-        //get next token
-        Compiler.Scanner.getNextToken()
 
-        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
-          {
-            //push to stack
-            validTokens.push(Compiler.currentToken)
-            //get next token
-            Compiler.Scanner.getNextToken()
-
-            if(Compiler.currentToken.equals(CONSTANTS.BRACKETE))
-              {
-                //push to stack
-                validTokens.push(Compiler.currentToken)
-                //get next token
-                Compiler.Scanner.getNextToken()
-              }
-            else
-              {
-                println("Syntax Error: " + Compiler.currentToken)
-                System.exit(1)
-              }
-          }
-        else
-          {
-            println("Syntax Error: " + Compiler.currentToken)
-            System.exit(1)
-          }
-      }
-    else
-      {
-        println("Syntax Error: " + Compiler.currentToken)
-        System.exit(1)
-      }
-  }
 
    // <variable-define> ::= DEFB REQTEXT EQSIGN REQTEXT BRACKETE <variable-define> | ε
   //add in the variable-define
@@ -400,7 +417,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
         //get next token
         Compiler.Scanner.getNextToken()
 
-        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+        if(Compiler.isText)
           {
             //push to stack
             validTokens.push(Compiler.currentToken)
@@ -414,7 +431,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
                 //get next token
                 Compiler.Scanner.getNextToken()
 
-                if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+                if(Compiler.isText)
                   {
                     //push to stack
                     validTokens.push(Compiler.currentToken)
@@ -471,7 +488,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
           //get next token
           Compiler.Scanner.getNextToken()
 
-          if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+          if(Compiler.isText)
             {
               //push to stack
               validTokens.push(Compiler.currentToken)
@@ -492,7 +509,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
                       //get next token
                       Compiler.Scanner.getNextToken()
 
-                      if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+                      if(Compiler.isText)
                        {
                          //push to stack
                          validTokens.push(Compiler.currentToken)
@@ -551,7 +568,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
       //get next token
       Compiler.Scanner.getNextToken()
 
-      if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+      if (Compiler.isText)
       {
         //push to stack
         validTokens.push(Compiler.currentToken)
@@ -594,7 +611,7 @@ class MySyntaxAnalyzer extends SyntaxAnalyzer{
         //get next token
         Compiler.Scanner.getNextToken()
 
-        if(Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT))
+        if(Compiler.isText)
           {
             //push to stack
             validTokens.push(Compiler.currentToken)
@@ -637,7 +654,7 @@ recalls listitem...how to implement this?
       Compiler.Scanner.getNextToken()
 
       if (Compiler.currentToken.equalsIgnoreCase(CONSTANTS.USEB) || Compiler.currentToken.equals(CONSTANTS.BOLD) ||
-        Compiler.currentToken.equals(CONSTANTS.LINKB) || Compiler.currentToken.equalsIgnoreCase(CONSTANTS.REQTEXT)) {
+        Compiler.currentToken.equals(CONSTANTS.LINKB) || Compiler.isText) {
 
         //push to stack
         validTokens.push(Compiler.currentToken)

@@ -10,6 +10,9 @@ package edu.towson.cis.cosc455.bmead1.project1
   var (s) are mutable or changeable
   val (s) are immutable or not changeable
 
+  QUESTIONS, COMMENTS, LOGIC, RUMORS
+  -nested if? line 164
+
    */
   class MyLexicalAnalyzer extends LexicalAnalyzer {
 
@@ -31,10 +34,10 @@ package edu.towson.cis.cosc455.bmead1.project1
     var lexemeList: List[String] = List()
     var lexems: List[String] = List()
     var newToken: String = ""
-   // val symbolList = List('!', '#', '*','+','[', ']', '(', ')', '=')
     val keyword = List('!', '#', '\\','*','+','[', ']', '(', ')', '=')
     val letterList = List("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
       "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z")
+    val ReqText = List(CONSTANTS.plainText)
 
     /*
     implement a Start State
@@ -44,20 +47,15 @@ package edu.towson.cis.cosc455.bmead1.project1
     def startState(line: String): Unit = {
       //initialize lexemes from Syntax -> not sure about this
       initializeKeyword()
-      //Compiler.Parser.gittex()
       //get token from compiler
       sourceLine = line
       position = 0
       getChar()
-      //getNextToken()
+      getNextToken()
     } //end startState
 
    /*
 	This method adds the current character
-	the the token after checking to make
-	sure that the length of the token
-	isn't too long, a lexical error in this
-	case.
      */
     override def addChar(): Unit = {
 
@@ -87,11 +85,6 @@ package edu.towson.cis.cosc455.bmead1.project1
     This method does a character-by-character analysis to
     get the next token and set it in the Compiler
 	  class's currentToken global String variable.
-	  This simple lexical analyzer does not differentiate
-	  between letters, digits and other special
-	  characters - it simply looks for characters, spaces and
-	  end of line characters to determine relevant tokens.
-
 	  DEFINITELY NEED TO DIFFERENTIATE BETWEEN
 	  LETTERS, DIGITS, and OTHER SPECIAL CHARACTERS
      */
@@ -105,7 +98,7 @@ package edu.towson.cis.cosc455.bmead1.project1
             use methods for keywords
             Backslash method is common in the
             defined constants
-             */
+        */
         if (nextChar == '\\') {
           processBS()
         }
@@ -126,6 +119,7 @@ package edu.towson.cis.cosc455.bmead1.project1
         {
           processText()
           Compiler.currentToken = lexeme.reverse.mkString
+          Compiler.isText = true
         }
       else
       {
@@ -143,8 +137,6 @@ package edu.towson.cis.cosc455.bmead1.project1
 
     */
     def processBS(): Unit ={
-     // addChar()
-     // getChar()
           while(!nextChar.isWhitespace && nextChar != '[')
             {
               addChar()
@@ -155,7 +147,6 @@ package edu.towson.cis.cosc455.bmead1.project1
               addChar()
               getChar()
             }
-
     }
     /*
     process heading char
@@ -171,26 +162,30 @@ package edu.towson.cis.cosc455.bmead1.project1
       if(nextChar == '!') {
         addChar()
         getChar()
-      }
+      } //should this be a nested if?
         if (nextChar == '[') {
           addChar()
           getChar()
         }
-
+      else
+          {
+            println("Lexical Error: " + nextChar + ". Looking for [ to complete Image definition.")
+          }
     }
 
     //process text
     //This works to my knowledge
     def processText(): Unit = {
       //iterates until not a kw, or special space char
-          while(!keyword.contains(nextChar) && nextChar != '\n' && nextChar!= '\t')
+      //change to include Compiler.isText
+          while(!keyword.contains(nextChar) && nextChar != '\n' && nextChar!= '\t' )
           {
             addChar()
             getChar()
           }
     }
 /*
-
+    Initializes all keywords that will be needed
  */
     def initializeKeyword() = {
       lexemeList = List("\\BEGIN", "\\END","\\TITLE[", "]","#","\\PARAB","\\PARAE","*","+",
@@ -204,6 +199,7 @@ package edu.towson.cis.cosc455.bmead1.project1
             println("Lexical Error: " + candidateToken + " not an allowed keyword")
             return false
         }
+       Compiler.isText = false
       return true
     }
 
@@ -212,12 +208,4 @@ package edu.towson.cis.cosc455.bmead1.project1
         getChar()
       }
     }
-
-  /*  def initializeAcceptedLex() = {
-      lexems = List(CONSTANTS.DOCB, CONSTANTS.DOCE, CONSTANTS.TITLEB, CONSTANTS.BRACKETE, CONSTANTS.HEADING,
-        CONSTANTS.PARAB, CONSTANTS.PARAE,CONSTANTS.BOLD, CONSTANTS.LISTITEM, CONSTANTS.NEWLINE, CONSTANTS.LINKB,
-        CONSTANTS.ADDRESSB, CONSTANTS.ADDRESSE, CONSTANTS.IMAGEB, CONSTANTS.DEFB, CONSTANTS.EQSIGN, CONSTANTS.USEB)
-    //lexems = List("\\BEGIN")
-    } */
-
   }

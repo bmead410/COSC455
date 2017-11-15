@@ -7,6 +7,7 @@ object Compiler{
 
   var currentToken : String = ""
   var fileContents : String = ""
+  var isText : Boolean = false
 
   val Scanner = new MyLexicalAnalyzer
   val Parser = new MySyntaxAnalyzer
@@ -20,13 +21,13 @@ object Compiler{
       readFile(args(0))
     Scanner.startState(fileContents)
     Parser.gittex()
-      //Scanner.getNextToken()
-    while(currentToken!=Nil)
-      {
-        Scanner.getNextToken()
-        println(currentToken)
-        println(Parser.validTokens)
-      }
+   // Scanner.getNextToken()
+
+       /* while(Parser.validTokens != Nil) {
+          //Scanner.getNextToken()
+          //println(currentToken)
+          println(Parser.validTokens)
+        } */
     }
  // }
 /*
@@ -37,7 +38,7 @@ object Compiler{
   def readFile(file : String) = {
     val source = scala.io.Source.fromFile(file)
     fileContents = try source.mkString finally source.close()
-    println(fileContents)
+    //println(fileContents)
   }
 
   def checkFile(args : Array[String]) = {
